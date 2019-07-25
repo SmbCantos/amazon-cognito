@@ -7,7 +7,7 @@ export function routes(router) {
       ctx.body = response
     })
     .post('/password/change', async (ctx) => {
-      const token = req.headers['authorization'].split(' ')[1]
+      const token = ctx.headers['authorization']
       const { previous, proposed } = ctx.request.body
       const response = await changePassword(token, previous, proposed)
       ctx.response = response

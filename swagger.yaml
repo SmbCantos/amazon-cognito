@@ -1,0 +1,338 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: MJS Cognito Auth Flow
+  license:
+    name: Proprietary
+basePath: /v1
+consumes:
+  - application/json
+produces:
+  - application/json
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Access_Token:
+    type: apiKey
+    name: Authorization
+    in: header
+  ID_Token:
+    type: apiKey
+    name: x-id_token
+    in: header
+  Refresh_Token:
+    type: apiKey
+    name: x-refresh_token
+    in: header
+paths:
+##########--SWAGGER--##########
+  '/swagger.json':
+    get:
+      tags:
+        - Spec
+      operationId: retrieveSpec
+      description: |
+        Retrieve OpenAPI spec.
+      responses:
+        '200':
+          description: Successful
+          schema:
+            type: object
+##########--Signup--###########
+  '/signup':
+    post:
+      description: Signup a New User
+      operationId: SignupUser
+      tags:
+        - User
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserSignupBase'
+      responses:
+        '200':
+          description: User was created
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+##########--Signin--###########
+  '/signin':
+    post:
+      description: User Signin
+      operationId: userSignin
+      tags:
+        - User
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserSigninBase'
+      responses:
+        '200':
+          description: User is Signed In
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            # $ref: './definitions.yaml'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+##########--Signout--###########
+  '/signout':
+    get:
+      description: Signout User
+      operationId: userSignout
+      tags:
+        - User
+      responses:
+        '200':
+          description: User was Signed out
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - Access_Token: []
+        - ID_Token: []
+        - Refresh_Token: []
+##########--Delete--###########
+  '/delete':
+    delete:
+      description: Delete User
+      operationId: userDelete
+      tags:
+        - User
+      responses:
+        '200':
+          description: User was Deleted
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - Access_Token: []
+        - ID_Token: []
+        - Refresh_Token: []
+##########--forgot--###########
+  '/password/forgot':
+    post:
+      description: User forgot password
+      operationId: userForgot
+      tags:
+        - User
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserForgotBase'
+      responses:
+        '200':
+          description: User was created
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  '/password/new':
+    post:
+      description: User set new password
+      operationId: userNewPassword
+      tags:
+        - User
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserNewPasswordBase'
+      responses:
+        '200':
+          description: User password is updated
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  '/password/change':
+    post:
+      description: Allows the user to change his or her password
+      operationId: changePassword
+      tags:
+        - User
+      parameters:
+        - in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserChangePasswordBase'
+          name: change
+      responses:
+        200:
+          description: User Password has changed
+          schema:
+            type: object
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - Access_Token: []
+
+##########--Refresh--###########
+  '/token/refresh':
+    get:
+      description: Request new auth details
+      operationId: refreshToken
+      tags:
+        - User
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: object
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BadRequest'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - Access_Token: []
+        - ID_Token: []
+        - Refresh_Token: []
+
+definitions:
+  UserSignupBase:
+    additionalProperties: false
+    required:
+      - password
+      - email
+    type: object
+    properties:
+      password:
+        type: string
+        description: The password of the user you wish to register.
+      email:
+        type: string
+        description: The email of the user you wish to register
+      attributes:
+        type: array
+        items:
+          additionalProperties: false
+          required:
+              - Name
+              - Value
+          type: object
+          properties:
+            Name:
+              description: The name of the attribute.
+              type: string
+            Value:
+              description: The value of the attribute.
+              type: string
+        description: An array of name-value pairs representing user attributes.
+  UserSigninBase:
+    additionalProperties: false
+    required:
+      - username
+      - password
+    type: object
+    properties:
+      username:
+        description: The username of the user you wish to authenticate.
+        type: string
+      password:
+        description: The password of the user you wish to authenticate.
+        type: string
+  UserForgotBase:
+    additionalProperties: false
+    required:
+      - username
+    type: object
+    properties:
+      username:
+        description: The username of the user you wish to reset password.
+        type: string
+  UserNewPasswordBase:
+    additionalProperties: false
+    required:
+      - username
+      - resetCode
+      - newPassword
+    type: object
+    properties:
+      username:
+        description: The username of the user you wish to reset password.
+        type: string
+      resetCode:
+        description: The reset code sent to the email or phone number of the user you wish to reset password.
+        type: string
+      newPassword:
+        description: The new password of the user you wish to update the password.
+        type: string
+  UserChangePasswordBase:
+    additionalProperties: false
+    required:
+      - previous
+      - proposed
+    type: object
+    properties:
+      previous:
+        description: The old password.
+        type: string
+      proposed:
+        description: The new password.
+        type: string
+  Error:
+    type: object
+    properties:
+      message:
+        type: string
+  BadRequest:
+    type: object
+    properties:
+      message:
+        type: string

@@ -7,7 +7,7 @@
     "start": "nodemon index.js --exec babel-node --dev"
   },
   "dependencies": {
-    "aws-sdk": "^2.496.0",
+    "aws-sdk": "^2.814.0",
     "babel-cli": "^6.24.0",
     "babel-eslint": "^7.2.1",
     "babel-plugin-root-import": "^6.4.1",
